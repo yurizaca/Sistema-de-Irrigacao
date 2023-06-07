@@ -1,0 +1,48 @@
+Codigo Fonte:
+
+// Definição dos pinos
+const int tmpPin = A0; // Sensor de temperatura TMP36 na porta analógica A0
+const int umidadeSoloPin = A1; // Potenciômetro (simulando sensor de umidade do solo) na porta analógica A1
+const int bombaAguaPin = 13; // LED (simulando bomba d'água) na porta digital 13
+
+// Parâmetros de umidade e temperatura
+const int umidadeSoloSeco = 300; // Valor lido do potenciômetro quando o solo está seco
+const int temperaturaMax = 30; // Temperatura máxima antes da irrigação
+
+void setup() {
+  pinMode(bombaAguaPin, OUTPUT); // Define o LED como saída
+  Serial.begin(9600); // Inicia a comunicação serial
+}
+
+void loop() {
+  // Lê o valor do sensor de temperatura
+  int valorLido = analogRead(tmpPin);
+  float tensao = valorLido * 5.0;
+  tensao /= 1024.0; 
+  float temperatura = (tensao - 0.5) * 100 ;  // Converte a tensão lida em temperatura
+
+  // Lê o valor do sensor de umidade do solo (potenciômetro)
+  int umidadeSolo = analogRead(umidadeSoloPin);
+
+  // Se a temperatura estiver acima do máximo ou a umidade do solo estiver abaixo do mínimo, liga a "bomba d'água"
+  if (temperatura > temperaturaMax || umidadeSolo < umidadeSoloSeco) {
+    digitalWrite(bombaAguaPin, HIGH);
+  } else {
+    digitalWrite(bombaAguaPin, LOW);
+  }
+
+  // Imprime os valores dos sensores e o estado da bomba d'água no monitor serial
+  Serial.print("Temperatura: ");
+  Serial.print(temperatura);
+  Serial.print(" *C");
+  Serial.print("\tUmidade do Solo: ");
+  Serial.print(umidadeSolo);
+  Serial.print("\tEstado da Bomba d'Agua: ");
+  if (digitalRead(bombaAguaPin)) {
+    Serial.println("ON");
+  } else {
+    Serial.println("OFF");
+  }
+  
+  delay(1000); // Espera um segundo antes de fazer as próximas leituras
+}
